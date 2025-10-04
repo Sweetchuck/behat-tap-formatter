@@ -1,0 +1,41 @@
+default:
+    testers:
+        strict: true
+        rerun_cache: '%paths.base%/.cache/behat/rerun'
+
+    exceptions:
+        verbosity: 4
+
+    extensions:
+        Sweetchuck\BehatTapFormatter\TapFormatterExtension: ~
+
+    formatters:
+        #junit:
+        #    output_path: '%paths.base%/reports/machine/junit/behat'
+        #pretty:
+        #    output_path: 'php://stdout'
+        #    output_styles:
+        #        passed:        ['green']
+        #        passed_param:  ['green',   null,  ['bold']]
+        #        undefined:     ['yellow',  null,  ['bold', 'underscore']]
+        #        pending:       ['yellow',  null,  [        'underscore']]
+        #        pending_param: ['yellow',  null,  ['bold', 'underscore']]
+        #        failed:        ['white',   'red']
+        #        failed_param:  ['white',   'red', ['bold']]
+        #        skipped:       ['cyan']
+        #        skipped_param: ['cyan',    null,  ['bold']]
+        #        comment:       ['default']
+        #        tag:           ['magenta']
+        tap:
+            show_trace: false
+            trace_depth: 1
+            show_steps: 'on_failure'
+            #show_steps: 'always'
+    suites:
+        default:
+            contexts:
+                - '\Sweetchuck\BehatTapFormatter\Tests\Helper\Behat\Context\Dummy'
+            paths:
+                features: '%paths.base%/features'
+            #filters:
+            #    tags: '~@knownBug'

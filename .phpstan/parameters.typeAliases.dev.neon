@@ -1,0 +1,16 @@
+parameters:
+	typeAliases:
+		php-executable: '''
+			array{
+				enabled: bool,
+				envVars?: array<string, ?string>,
+				command: array<string>,
+			}
+		'''
+		scenario-events: '''
+			array{
+				before: \Behat\Behat\EventDispatcher\Event\BeforeScenarioTested,
+				after: \Behat\Behat\EventDispatcher\Event\AfterScenarioTested,
+				step?: \Behat\Behat\EventDispatcher\Event\AfterStepTested,
+			}
+		'''

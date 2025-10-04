@@ -1,0 +1,40 @@
+### Common.
+/.cache/
+/reports/
+
+
+### Composer.
+/vendor/
+/sweetchuck-behat-tap-formatter-*.tar
+/sweetchuck-behat-tap-formatter-*.tar.bz2
+/sweetchuck-behat-tap-formatter-*.tar.gz
+/sweetchuck-behat-tap-formatter-*.zip
+
+
+### Composer Suite.
+/.composer-suite/
+/composer.local.json
+/composer.local.lock
+
+
+### PHPUnit.
+/phpunit.xml
+/tests/fixtures/project-01/.cache/
+/tests/fixtures/project-01/reports/
+
+
+### PHP Code Sniffer.
+/phpcs.xml
+
+
+### PHPStan.
+/tests/src/Phpstan.php
+/phpstan.neon
+
+
+### Robo.
+/robo.yml
+
+
+### sweetchuck/git-hooks.
+/.git-hooks.local

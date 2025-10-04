@@ -1,0 +1,29 @@
+parameters:
+	typeAliases:
+		behat-tap-formatter-parameters-optional: '''
+			array{
+				show_trace?: bool,
+				trace_depth?: int<0, max>,
+				show_steps?: "never"|"on_failure"|"always",
+			}
+		'''
+		behat-tap-formatter-parameters: '''
+			array{
+				show_trace: bool,
+				trace_depth: int<0, max>,
+				show_steps: "never"|"on_failure"|"always",
+			}
+		'''
+		behat-tap-formatter-tap-test-point: '''
+			array{
+				comment?: ?string,
+				status: bool,
+				id?: int,
+				description?: ?string,
+				directive?: array{
+					id?: string,
+					reason?: ?string,
+				},
+				yamlBlock?: array<string, mixed>,
+			}
+		'''
