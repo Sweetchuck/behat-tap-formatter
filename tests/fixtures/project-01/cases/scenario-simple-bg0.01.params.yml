@@ -1,0 +1,10 @@
+behatParams:
+    formatters:
+        tap:
+            show_trace: false
+            trace_depth: 1
+            outline_as_subtest: false
+            show_executed_steps: 'never'
+            show_remaining_steps: false
+cliArgs:
+    - 'features/scenario-simple-bg0.feature:3'

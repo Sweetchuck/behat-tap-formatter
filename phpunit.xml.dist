@@ -18,17 +18,21 @@
         <ini name="memory_limit" value="-1" />
     </php>
 
-    <testsuites>
-        <testsuite name="unit">
-            <directory>tests/src/Unit/</directory>
-        </testsuite>
-    </testsuites>
-
     <source>
         <include>
             <directory>./src/</directory>
         </include>
     </source>
+
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/src/Unit/</directory>
+        </testsuite>
+
+        <testsuite name="acceptance">
+            <directory>tests/src/Acceptance/</directory>
+        </testsuite>
+    </testsuites>
 
     <logging>
         <testdoxHtml outputFile="./reports/human/all/result/testdox.html" />

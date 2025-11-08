@@ -28,9 +28,22 @@ class TapFormatter implements Formatter
      * @phpstan-var behat-tap-formatter-parameters
      */
     protected array $parameters = [
+        // Show the exception trace when the test fails.
         'show_trace' => true,
+        // How many entries should be shown from the stack trace.
         'trace_depth' => 1,
-        'show_steps' => 'on_failure',
+
+        'outline_as_subtest' => false,
+
+        // Allowed values:
+        // - never: Do not show the steps as subtest test points.
+        // - on_failure: Shows the steps as subtest test points only when there was a failure.
+        // - always: Always shows the steps as test points.
+        'show_executed_steps' => 'on_failure',
+
+        // When there was a failure, show the remaining steps as skipped test points.
+        // This only makes sense when "show_executed_steps" is set to "on_failure" or "always".
+        'show_remaining_steps' => false,
     ];
 
     protected ?BeforeOutlineTested $beforeOutlineTestedEvent = null;
@@ -194,7 +207,7 @@ class TapFormatter implements Formatter
         // @todo Add events to the list only when it's needed.
         // Check "show_steps" parameter.
         $this->afterStepEvents[] = $event;
-        if ($this->parameters['show_steps'] === 'always') {
+        if ($this->parameters['show_executed_steps'] === 'always') {
             $parts = [
                 'status' => $event->getTestResult()->isPassed(),
                 'id' => count($this->afterStepEvents),
@@ -215,7 +228,7 @@ class TapFormatter implements Formatter
         $this->afterStepEvents = [];
         $this->scenarioNumber++;
 
-        if ($this->parameters['show_steps'] === 'always') {
+        if ($this->parameters['show_executed_steps'] === 'always') {
             $this->tapWriter->tapComment('Subtest: Steps');
             $this->tapWriter->incrementDepth();
         }
@@ -224,7 +237,7 @@ class TapFormatter implements Formatter
     protected function afterTest(AfterScenarioTested $event): void
     {
         $resultCode = $event->getTestResult()->getResultCode();
-        if ($this->parameters['show_steps'] === 'on_failure'
+        if ($this->parameters['show_executed_steps'] === 'on_failure'
             && $resultCode === TestResult::FAILED
         ) {
             $this->tapWriter->tapComment('Subtest: Steps');
@@ -245,7 +258,7 @@ class TapFormatter implements Formatter
             $this->tapWriter->decrementDepth();
         }
 
-        if ($this->parameters['show_steps'] === 'always') {
+        if ($this->parameters['show_executed_steps'] === 'always') {
             $this->tapWriter->tapPlan(count($this->afterStepEvents));
             $this->tapWriter->decrementDepth();
         }

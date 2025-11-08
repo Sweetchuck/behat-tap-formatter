@@ -26,16 +26,16 @@ default:
         #        skipped_param: ['cyan',    null,  ['bold']]
         #        comment:       ['default']
         #        tag:           ['magenta']
-        tap:
-            show_trace: false
-            trace_depth: 1
-            show_steps: 'on_failure'
-            #show_steps: 'always'
+
+        #tap:
+        #    show_trace: false
+        #    trace_depth: 1
+        #    #show_steps: 'never'
+        #    show_steps: 'on_failure'
+        #    #show_steps: 'always'
     suites:
         default:
             contexts:
                 - '\Sweetchuck\BehatTapFormatter\Tests\Helper\Behat\Context\Dummy'
             paths:
-                features: '%paths.base%/features'
-            #filters:
-            #    tags: '~@knownBug'
+                - '%paths.base%/features'

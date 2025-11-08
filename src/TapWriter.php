@@ -75,6 +75,7 @@ class TapWriter implements TapWriterInterface
     }
     // endregion
 
+    // region TAP
     public function tapVersion(): static
     {
         if ($this->depth !== 0) {
@@ -168,6 +169,19 @@ class TapWriter implements TapWriterInterface
 
         return $this;
     }
+
+    public function tapBailOut(array $parts): static
+    {
+        $this->tapComment($parts['comment'] ?? null);
+        $mainText = 'Bail out!';
+        if (!empty($parts['description'])) {
+            $mainText .= ' ' . $parts['description'];
+        }
+        $this->printer->writeln($mainText);
+
+        return $this;
+    }
+    // endregion
 
     /**
      * @todo SubTest depth support.

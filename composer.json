@@ -50,7 +50,8 @@
         "sweetchuck/robo-git": "4.x-dev",
         "sweetchuck/robo-phpcs": "4.x-dev",
         "sweetchuck/robo-phpstan": "3.x-dev",
-        "symfony/error-handler": "^7.0"
+        "symfony/error-handler": "^7.0",
+        "symfony/filesystem": "^7.3"
     },
     "autoload": {
         "psr-4": {
