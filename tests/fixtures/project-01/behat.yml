@@ -30,9 +30,11 @@ default:
         #tap:
         #    show_trace: false
         #    trace_depth: 1
-        #    #show_steps: 'never'
-        #    show_steps: 'on_failure'
-        #    #show_steps: 'always'
+        #    examples_as_subtest: false
+        #    #show_executed_steps: 'never'
+        #    #show_executed_steps: 'on_failure'
+        #    show_executed_steps: 'always'
+        #    show_remaining_steps: false
     suites:
         default:
             contexts:

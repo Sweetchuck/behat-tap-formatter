@@ -17,6 +17,10 @@ interface TapWriterInterface
 
     public function decrementDepth(): static;
 
+    public function startSubTest(?string $description): static;
+
+    public function endSubTest(int $amount): static;
+
     public function tapVersion(): static;
 
     /**

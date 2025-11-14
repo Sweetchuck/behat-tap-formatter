@@ -44,17 +44,45 @@ class TapFormatterExtension implements Extension
 
         $childrenBuilder
             ->booleanNode('show_trace')
-            ->info('Show stack trace for failed tests.')
+            ->info('If TRUE then the exception trace is added into the YamlBlock when a test fails.')
             ->defaultTrue()
             ->end();
         $childrenBuilder
             ->scalarNode('trace_depth')
-            ->info('Number of entries from the call stack to show. 0 to show all.')
+            ->info(<<<'TEXT'
+                Number of entries from the call stack to show. 0 to show all.
+                Used only when "show_trace" is TRUE.
+                TEXT
+            )
             ->defaultValue(3)
             ->end();
         $childrenBuilder
-            ->scalarNode('show_steps')
-            ->info('Show steps as subtests. Allowed values: never, always, on_failure.')
+            ->booleanNode('examples_as_subtest')
+            ->defaultTrue()
+            ->info(<<<'TEXT'
+                If TRUE then Scenario Outline Examples are handled as subtests.
+                TEXT
+            )
+            ->end();
+        $childrenBuilder
+            ->scalarNode('show_executed_steps')
+            ->info(<<<'TEXT'
+                Show steps as subtests.
+                Allowed values:
+                - never: Do not show the steps as subtest test points.
+                - on_failure: Shows the steps as subtest test points only when there was a failure.
+                - always: Always shows the steps as test points.
+                TEXT
+            )
+            ->defaultValue('on_failure')
+            ->end();
+        $childrenBuilder
+            ->booleanNode('show_remaining_steps')
+            ->info(<<<'TEXT'
+                When there was a failure, show the remaining steps as skipped test points.
+                This only makes sense when "show_executed_steps" is set to "on_failure" or "always".
+                TEXT
+            )
             ->defaultValue('on_failure')
             ->end();
     }

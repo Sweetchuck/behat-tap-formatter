@@ -67,6 +67,26 @@ class TapWriter implements TapWriterInterface
         return $this;
     }
 
+    public function startSubTest(?string $description = null): static
+    {
+        $lines = $description === null
+            ? 'Subtest'
+            : "Subtest: $description";
+
+        return $this
+            ->tapComment($lines)
+            ->incrementDepth();
+    }
+
+    public function endSubTest(?int $amount = null): static
+    {
+        if ($amount !== null) {
+            $this->tapPlan($amount);
+        }
+
+        return $this->decrementDepth();
+    }
+
     protected function updateLinePrefix(): static
     {
         $this->linePrefix = str_repeat('    ', $this->depth);
@@ -154,7 +174,7 @@ class TapWriter implements TapWriterInterface
         }
 
         if (!empty($parts['directive']['id'])) {
-            $pattern .= ' #%s';
+            $pattern .= ' # %s';
             $args[] = strtoupper($parts['directive']['id']);
 
             if (!empty($parts['directive']['reason'])) {

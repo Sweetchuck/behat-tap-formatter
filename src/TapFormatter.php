@@ -28,30 +28,23 @@ class TapFormatter implements Formatter
      * @phpstan-var behat-tap-formatter-parameters
      */
     protected array $parameters = [
-        // Show the exception trace when the test fails.
         'show_trace' => true,
-        // How many entries should be shown from the stack trace.
         'trace_depth' => 1,
-
-        'outline_as_subtest' => false,
-
-        // Allowed values:
-        // - never: Do not show the steps as subtest test points.
-        // - on_failure: Shows the steps as subtest test points only when there was a failure.
-        // - always: Always shows the steps as test points.
+        'examples_as_subtest' => false,
         'show_executed_steps' => 'on_failure',
-
-        // When there was a failure, show the remaining steps as skipped test points.
-        // This only makes sense when "show_executed_steps" is set to "on_failure" or "always".
         'show_remaining_steps' => false,
     ];
 
     protected ?BeforeOutlineTested $beforeOutlineTestedEvent = null;
 
+    protected bool $isScenarioFailed = false;
+
     /**
      * @var array<\Behat\Behat\EventDispatcher\Event\AfterStepTested>
      */
     protected array $afterStepEvents = [];
+
+    protected int $lastPrintedAfterStepEvent = -1;
 
     protected int $scenarioNumber = 0;
 
@@ -204,63 +197,131 @@ class TapFormatter implements Formatter
 
     public function onAfterStepTested(AfterStepTested $event): void
     {
-        // @todo Add events to the list only when it's needed.
-        // Check "show_steps" parameter.
+        if ($this->parameters['show_executed_steps'] === 'never') {
+            return;
+        }
+
         $this->afterStepEvents[] = $event;
-        if ($this->parameters['show_executed_steps'] === 'always') {
-            $parts = [
-                'status' => $event->getTestResult()->isPassed(),
-                'id' => count($this->afterStepEvents),
-                // @todo DRY.
-                'description' => sprintf(
-                    '%s %s',
-                    $event->getStep() ->getKeyword(),
-                    $event->getStep() ->getText(),
-                ),
-            ];
-            $this->tapWriter->tapTestPoint($parts);
+        $stepResultCode = $event->getTestResult()->getResultCode();
+
+        if (!$this->isScenarioFailed
+            && $stepResultCode !== TestResult::PASSED
+        ) {
+            // This is the first failed step.
+            // The result code of upcoming steps will be SKIPPED.
+            $this->isScenarioFailed = true;
+            $this->printAllSteps();
+
+            return;
+        }
+
+        $showStep = (
+            $this->parameters['show_executed_steps'] === 'always'
+            && $stepResultCode === TestResult::PASSED
+        ) || (
+            $this->parameters['show_remaining_steps']
+            && $stepResultCode === TestResult::SKIPPED
+        );
+
+        if ($showStep) {
+            $this->printNextStep();
         }
     }
     // endregion
 
+    protected function printAllSteps(): static
+    {
+        while ($this->lastPrintedAfterStepEvent < count($this->afterStepEvents) - 1) {
+            $this->printNextStep();
+        }
+
+        return $this;
+    }
+
+    protected function printNextStep(): static
+    {
+        $this->lastPrintedAfterStepEvent++;
+        if ($this->lastPrintedAfterStepEvent >= count($this->afterStepEvents)) {
+            throw new \LogicException('No more steps to print');
+        }
+
+        $event = $this->afterStepEvents[$this->lastPrintedAfterStepEvent];
+
+        $result = $event->getTestResult();
+
+        $parts = [
+            'status' => $result->isPassed(),
+            'id' => $this->lastPrintedAfterStepEvent + 1,
+            // @todo DRY.
+            'description' => sprintf(
+                '%s %s',
+                $event->getStep() ->getKeyword(),
+                $event->getStep() ->getText(),
+            ),
+        ];
+        switch ($result->getResultCode()) {
+            case TestResult::SKIPPED:
+                $parts['directive'] = [
+                    'id' => 'SKIP',
+                    'reason' => 'previous step failed',
+                ];
+                break;
+        }
+
+        $this->tapWriter->tapTestPoint($parts);
+
+        return $this;
+    }
+
     protected function beforeTest(ScenarioLikeInterface $scenario): void
     {
+        $this->isScenarioFailed = false;
         $this->afterStepEvents = [];
+        $this->lastPrintedAfterStepEvent = -1;
         $this->scenarioNumber++;
 
         if ($this->parameters['show_executed_steps'] === 'always') {
-            $this->tapWriter->tapComment('Subtest: Steps');
-            $this->tapWriter->incrementDepth();
+            $this->tapWriter->startSubTest('Steps');
         }
     }
 
     protected function afterTest(AfterScenarioTested $event): void
     {
-        $resultCode = $event->getTestResult()->getResultCode();
-        if ($this->parameters['show_executed_steps'] === 'on_failure'
-            && $resultCode === TestResult::FAILED
-        ) {
-            $this->tapWriter->tapComment('Subtest: Steps');
-            $this->tapWriter->incrementDepth();
-            foreach ($this->afterStepEvents as $index => $afterStepEvent) {
-                $parts = [
-                    'status' => $afterStepEvent->getTestResult()->isPassed(),
-                    'id' => $index + 1,
-                    'description' => sprintf(
-                        '%s %s',
-                        $afterStepEvent->getStep() ->getKeyword(),
-                        $afterStepEvent->getStep() ->getText(),
-                    ),
-                ];
-                $this->tapWriter->tapTestPoint($parts);
-            }
-            $this->tapWriter->tapPlan(count($this->afterStepEvents));
-            $this->tapWriter->decrementDepth();
-        }
+        //$resultCode = $event->getTestResult()->getResultCode();
+        //if ($this->parameters['show_executed_steps'] === 'on_failure'
+        //    && $resultCode === TestResult::FAILED
+        //) {
+        //    $this->tapWriter->tapComment('Subtest: Steps');
+        //    $this->tapWriter->incrementDepth();
+        //    $numOfExecutedSteps = 0;
+        //    foreach ($this->afterStepEvents as $index => $afterStepEvent) {
+        //        if ($afterStepEvent->getTestResult()->getResultCode() === TestResult::SKIPPED) {
+        //            break;
+        //        }
+        //
+        //        $numOfExecutedSteps++;
+        //        $parts = [
+        //            'status' => $afterStepEvent->getTestResult()->isPassed(),
+        //            'id' => $index + 1,
+        //            'description' => sprintf(
+        //                '%s %s',
+        //                $afterStepEvent->getStep() ->getKeyword(),
+        //                $afterStepEvent->getStep() ->getText(),
+        //            ),
+        //        ];
+        //        $this->tapWriter->tapTestPoint($parts);
+        //    }
+        //    $this->tapWriter->tapPlan($numOfExecutedSteps);
+        //    $this->tapWriter->decrementDepth();
+        //}
+        //
+        //if ($this->parameters['show_executed_steps'] === 'always') {
+        //    $this->tapWriter->tapPlan(count($this->afterStepEvents));
+        //    $this->tapWriter->decrementDepth();
+        //}
 
-        if ($this->parameters['show_executed_steps'] === 'always') {
-            $this->tapWriter->tapPlan(count($this->afterStepEvents));
-            $this->tapWriter->decrementDepth();
+        if ($this->lastPrintedAfterStepEvent !== -1) {
+            $this->tapWriter->endSubTest(count($this->afterStepEvents));
         }
 
         $testPoint = $this->afterTestEventToTapTestPoint($event);
@@ -273,17 +334,12 @@ class TapFormatter implements Formatter
     protected function afterTestEventToTapTestPoint(AfterScenarioTested $event): array
     {
         $resultCode = $event->getTestResult()->getResultCode();
-        $status = $resultCode !== TestResult::FAILED;
+        $status = $resultCode === TestResult::PASSED;
 
         $testPoint = [
             'status' => $status,
             'id' => $this->scenarioNumber,
-            'description' => sprintf(
-                '%s: %s | %s',
-                $event->getSuite()->getName(),
-                $event->getFeature()->getTitle(),
-                $this->getScenarioTitle($event),
-            ),
+            'description' => $this->getScenarioSimpleDescription($event),
             'directive' => [
                 'id' => null,
                 'reason' => null,
@@ -326,6 +382,26 @@ class TapFormatter implements Formatter
         return $testPoint;
     }
 
+    protected function getScenarioSimpleDescription(AfterScenarioTested $event): string
+    {
+        $suiteTitle = $event->getSuite()->getName();
+        $featureTitle = $event->getFeature()->getTitle();
+        $scenarioTitle = $event->getScenario()->getTitle();
+
+        $isOutline = $this->beforeOutlineTestedEvent !== null
+            && $event->getScenario()->getNodeType() === 'Example';
+
+        if (!$isOutline) {
+            return "{$suiteTitle}: {$scenarioTitle}";
+        }
+
+        return str_starts_with($scenarioTitle, $featureTitle)
+            ? "{$suiteTitle}: {$scenarioTitle}"
+            : "{$suiteTitle}: {$featureTitle} | {$scenarioTitle}";
+
+        //return $this->beforeOutlineTestedEvent->getOutline()->getTitle() . ' ' . $event->getScenario()->getTitle();
+    }
+
     protected function getScenarioTitle(AfterScenarioTested $event): string
     {
         $isOutline = $this->beforeOutlineTestedEvent !== null
@@ -343,10 +419,15 @@ class TapFormatter implements Formatter
      */
     protected function getFailedParams(AfterScenarioTested|AfterOutlineTested $event): ?array
     {
-        $lastStepEvent = end($this->afterStepEvents);
-        if (!$lastStepEvent
-            || $lastStepEvent->getTestResult()->isPassed()
-        ) {
+        $failedStepEvent = null;
+        foreach ($this->afterStepEvents as $afterStepEvent) {
+            if (!$afterStepEvent->getTestResult()->isPassed()) {
+                $failedStepEvent = $afterStepEvent;
+
+                break;
+            }
+        }
+        if (!$failedStepEvent) {
             return null;
         }
 
@@ -354,30 +435,30 @@ class TapFormatter implements Formatter
         $scenario = $event instanceof AfterScenarioTested
             ? $event->getScenario()
             : $event->getOutline();
-        $step = $lastStepEvent->getStep();
+        $step = $failedStepEvent->getStep();
 
         $params = [
             'feature' => [
                 'title' => $feature->getTitle(),
-                'file' => $feature->getFile(),
+                'file' => $this->getRelativeFilePath($feature->getFile()),
             ],
             'scenario' => [
                 'title' => $scenario->getTitle(),
                 'line' => $scenario->getLine(),
             ],
             'step' => [
-                'text' => $step->getText(),
+                'text' => $step->getKeyword() . ' ' . $step->getText(),
                 'line' => $step->getLine(),
             ],
         ];
 
-        $result = $lastStepEvent->getTestResult();
+        $result = $failedStepEvent->getTestResult();
         if (!($result instanceof ExceptionResult)
             || !$result->hasException()
         ) {
             $params['message'] = sprintf(
                 'Unknown error in %s',
-                get_class($lastStepEvent),
+                get_class($failedStepEvent),
             );
 
             return $params;
@@ -395,5 +476,19 @@ class TapFormatter implements Formatter
         }
 
         return $params;
+    }
+
+    protected function getBaseDir(): string
+    {
+        return (string) getcwd();
+    }
+
+    protected function getRelativeFilePath(string $filePath): string
+    {
+        return preg_replace(
+            '@^' . preg_quote($this->getBaseDir(), '@') . '/@',
+            '',
+            $filePath,
+        );
     }
 }

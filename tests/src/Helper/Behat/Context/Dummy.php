@@ -8,6 +8,9 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeSuite;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 class Dummy implements Context
 {
@@ -21,11 +24,10 @@ class Dummy implements Context
         }
     }
 
+    #[Given('there is a thing with ID :id Result :result')]
+    #[When('I create a thing with ID :id Result :result')]
+    #[Then('I see two things with ID :id Result :result')]
     /**
-     * @Given there is a thing with ID :id Result :result
-     * @When I create a thing with ID :id Result :result
-     * @Then I see two things with ID :id Result :result
-     *
      * @throws \Throwable
      */
     public function doDummySimple(string $id, string $result): void
@@ -39,11 +41,10 @@ class Dummy implements Context
         }
     }
 
+    #[Given('There is a table with ID :id Result :result and table:')]
+    #[When('I create a table with ID :id Result :result and table:')]
+    #[Then('I see two tables with ID :id Result :result and table:')]
     /**
-     * @Given There is a table with ID :id Result :result and table:
-     * @When I create a table with ID :id Result :result and table:
-     * @Then I see two tables with ID :id Result :result and table:
-     *
      * @throws \Throwable
      */
     public function doDummyTable(string $id, string $result, TableNode $tableNode): void
@@ -57,11 +58,10 @@ class Dummy implements Context
         }
     }
 
+    #[Given('There is a string with ID :id Result :result and string:')]
+    #[When('I create a string with ID :id Result :result and string:')]
+    #[Then('I see two strings with ID :id Result :result and string:')]
     /**
-     * @Given There is a string with ID :id Result :result and string:
-     * @When I create a string with ID :id Result :result and string:
-     * @Then I see two strings with ID :id Result :result and string:
-     *
      * @throws \Throwable
      */
     public function doDummyString(string $id, string $result, PyStringNode $string): void

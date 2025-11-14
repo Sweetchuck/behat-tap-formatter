@@ -1,0 +1,3 @@
+TAP version 14
+ok 1 - default: Simple scenarios without background steps - success
+1..1
