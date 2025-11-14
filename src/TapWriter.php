@@ -190,6 +190,9 @@ class TapWriter implements TapWriterInterface
         return $this;
     }
 
+    /**
+     * @phpstan-param behat-tap-formatter-tap-bail-out $parts
+     */
     public function tapBailOut(array $parts): static
     {
         $this->tapComment($parts['comment'] ?? null);

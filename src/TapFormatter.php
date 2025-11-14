@@ -13,6 +13,7 @@ use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\OutlineTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Behat\EventDispatcher\Event\StepTested;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\ScenarioLikeInterface;
 use Behat\Testwork\EventDispatcher\Event\BeforeSuiteTested;
 use Behat\Testwork\EventDispatcher\Event\SuiteTested;
@@ -197,11 +198,11 @@ class TapFormatter implements Formatter
 
     public function onAfterStepTested(AfterStepTested $event): void
     {
+        $this->afterStepEvents[] = $event;
         if ($this->parameters['show_executed_steps'] === 'never') {
             return;
         }
 
-        $this->afterStepEvents[] = $event;
         $stepResultCode = $event->getTestResult()->getResultCode();
 
         if (!$this->isScenarioFailed
@@ -210,6 +211,10 @@ class TapFormatter implements Formatter
             // This is the first failed step.
             // The result code of upcoming steps will be SKIPPED.
             $this->isScenarioFailed = true;
+
+            if ($this->parameters['show_executed_steps'] === 'on_failure') {
+                $this->tapWriter->startSubTest('Steps');
+            }
             $this->printAllSteps();
 
             return;
@@ -247,6 +252,7 @@ class TapFormatter implements Formatter
 
         $event = $this->afterStepEvents[$this->lastPrintedAfterStepEvent];
 
+        $step = $event->getStep();
         $result = $event->getTestResult();
 
         $parts = [
@@ -255,8 +261,8 @@ class TapFormatter implements Formatter
             // @todo DRY.
             'description' => sprintf(
                 '%s %s',
-                $event->getStep() ->getKeyword(),
-                $event->getStep() ->getText(),
+                $step->getKeyword(),
+                $step->getText(),
             ),
         ];
         switch ($result->getResultCode()) {
@@ -269,6 +275,29 @@ class TapFormatter implements Formatter
         }
 
         $this->tapWriter->tapTestPoint($parts);
+
+        // Steps could have only one argument.
+        // @see \Behat\Gherkin\Node\StepNode::__construct
+        foreach ($step->getArguments() as $argument) {
+            $prefix = '';
+            $suffix = '';
+            $comment = null;
+
+            if ($argument instanceof PyStringNode) {
+                $prefix = '"""' . "\n";
+                $suffix = "\n" . '"""';
+            }
+
+            if ($argument instanceof \Stringable
+                || method_exists($argument, '__toString')
+            ) {
+                $comment = (string) $argument;
+            }
+
+            if ($comment !== null) {
+                $this->tapWriter->tapComment("$prefix{$comment}$suffix");
+            }
+        }
 
         return $this;
     }
@@ -287,39 +316,6 @@ class TapFormatter implements Formatter
 
     protected function afterTest(AfterScenarioTested $event): void
     {
-        //$resultCode = $event->getTestResult()->getResultCode();
-        //if ($this->parameters['show_executed_steps'] === 'on_failure'
-        //    && $resultCode === TestResult::FAILED
-        //) {
-        //    $this->tapWriter->tapComment('Subtest: Steps');
-        //    $this->tapWriter->incrementDepth();
-        //    $numOfExecutedSteps = 0;
-        //    foreach ($this->afterStepEvents as $index => $afterStepEvent) {
-        //        if ($afterStepEvent->getTestResult()->getResultCode() === TestResult::SKIPPED) {
-        //            break;
-        //        }
-        //
-        //        $numOfExecutedSteps++;
-        //        $parts = [
-        //            'status' => $afterStepEvent->getTestResult()->isPassed(),
-        //            'id' => $index + 1,
-        //            'description' => sprintf(
-        //                '%s %s',
-        //                $afterStepEvent->getStep() ->getKeyword(),
-        //                $afterStepEvent->getStep() ->getText(),
-        //            ),
-        //        ];
-        //        $this->tapWriter->tapTestPoint($parts);
-        //    }
-        //    $this->tapWriter->tapPlan($numOfExecutedSteps);
-        //    $this->tapWriter->decrementDepth();
-        //}
-        //
-        //if ($this->parameters['show_executed_steps'] === 'always') {
-        //    $this->tapWriter->tapPlan(count($this->afterStepEvents));
-        //    $this->tapWriter->decrementDepth();
-        //}
-
         if ($this->lastPrintedAfterStepEvent !== -1) {
             $this->tapWriter->endSubTest(count($this->afterStepEvents));
         }
@@ -398,8 +394,6 @@ class TapFormatter implements Formatter
         return str_starts_with($scenarioTitle, $featureTitle)
             ? "{$suiteTitle}: {$scenarioTitle}"
             : "{$suiteTitle}: {$featureTitle} | {$scenarioTitle}";
-
-        //return $this->beforeOutlineTestedEvent->getOutline()->getTitle() . ' ' . $event->getScenario()->getTitle();
     }
 
     protected function getScenarioTitle(AfterScenarioTested $event): string

@@ -1,0 +1,20 @@
+TAP version 14
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "sc-01" Result "ok"
+    ok 2 - When I create a thing with ID "sc-02" Result "ok"
+    not ok 3 - Then I see two things with ID "sc-03" Result "fail"
+    1..3
+not ok 1 - default: Simple scenarios without background steps - last step fails
+  ---
+  feature:
+    title: 'Simple scenarios without background steps'
+    file: features/simple-bg0.feature
+  scenario:
+    title: 'Simple scenarios without background steps - last step fails'
+    line: 18
+  step:
+    text: 'Then I see two things with ID "sc-03" Result "fail"'
+    line: 21
+  message: 'Fail. id: sc-03, result: fail'
+  ...
+1..1

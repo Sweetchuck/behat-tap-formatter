@@ -1,0 +1,15 @@
+TAP version 14
+not ok 1 - default: Simple scenarios without background steps - middle step fails
+  ---
+  feature:
+    title: 'Simple scenarios without background steps'
+    file: features/simple-bg0.feature
+  scenario:
+    title: 'Simple scenarios without background steps - middle step fails'
+    line: 13
+  step:
+    text: 'When I create a thing with ID "sc-02" Result "fail"'
+    line: 15
+  message: 'Fail. id: sc-02, result: fail'
+  ...
+1..1

@@ -41,9 +41,9 @@ class Dummy implements Context
         }
     }
 
-    #[Given('There is a table with ID :id Result :result and table:')]
-    #[When('I create a table with ID :id Result :result and table:')]
-    #[Then('I see two tables with ID :id Result :result and table:')]
+    #[Given('there is a thing with ID :id Result :result and table:')]
+    #[When('I create a thing with ID :id Result :result and table:')]
+    #[Then('I see two thing with ID :id Result :result and table:')]
     /**
      * @throws \Throwable
      */
@@ -58,9 +58,9 @@ class Dummy implements Context
         }
     }
 
-    #[Given('There is a string with ID :id Result :result and string:')]
-    #[When('I create a string with ID :id Result :result and string:')]
-    #[Then('I see two strings with ID :id Result :result and string:')]
+    #[Given('there is a thing with ID :id Result :result and string:')]
+    #[When('I create a thing with ID :id Result :result and string:')]
+    #[Then('I see two thing with ID :id Result :result and string:')]
     /**
      * @throws \Throwable
      */

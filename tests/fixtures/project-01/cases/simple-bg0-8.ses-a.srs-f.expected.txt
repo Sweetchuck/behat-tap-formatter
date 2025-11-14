@@ -6,7 +6,7 @@ not ok 1 - default: Simple scenarios without background steps - first step fails
   ---
   feature:
     title: 'Simple scenarios without background steps'
-    file: features/scenario-simple-bg0.feature
+    file: features/simple-bg0.feature
   scenario:
     title: 'Simple scenarios without background steps - first step fails'
     line: 8

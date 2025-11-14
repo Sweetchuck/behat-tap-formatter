@@ -16,7 +16,7 @@ Feature: Simple scenarios with background steps
 
   Scenario: Simple scenarios with background steps - middle step fails
     Given there is a thing with ID "sc-01" Result "ok"
-    When I create a thing with ID "sc-02" Result "ok"
+    When I create a thing with ID "sc-02" Result "fail"
     Then I see two things with ID "sc-04" Result "ok"
 
   Scenario: Simple scenarios with background steps - last step fails

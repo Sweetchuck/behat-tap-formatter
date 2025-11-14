@@ -1,0 +1,60 @@
+TAP version 14
+ok 1 - default: Simple scenarios with background steps - success
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    ok 2 - And there is a thing with ID "bg-02" Result "ok"
+    not ok 3 - Given there is a thing with ID "sc-01" Result "fail"
+    1..5
+not ok 2 - default: Simple scenarios with background steps - first step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-ok.feature
+  scenario:
+    title: 'Simple scenarios with background steps - first step fails'
+    line: 12
+  step:
+    text: 'Given there is a thing with ID "sc-01" Result "fail"'
+    line: 13
+  message: 'Fail. id: sc-01, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    ok 2 - And there is a thing with ID "bg-02" Result "ok"
+    ok 3 - Given there is a thing with ID "sc-01" Result "ok"
+    not ok 4 - When I create a thing with ID "sc-02" Result "fail"
+    1..5
+not ok 3 - default: Simple scenarios with background steps - middle step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-ok.feature
+  scenario:
+    title: 'Simple scenarios with background steps - middle step fails'
+    line: 17
+  step:
+    text: 'When I create a thing with ID "sc-02" Result "fail"'
+    line: 19
+  message: 'Fail. id: sc-02, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    ok 2 - And there is a thing with ID "bg-02" Result "ok"
+    ok 3 - Given there is a thing with ID "sc-01" Result "ok"
+    ok 4 - When I create a thing with ID "sc-02" Result "ok"
+    not ok 5 - Then I see two things with ID "sc-04" Result "fail"
+    1..5
+not ok 4 - default: Simple scenarios with background steps - last step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-ok.feature
+  scenario:
+    title: 'Simple scenarios with background steps - last step fails'
+    line: 22
+  step:
+    text: 'Then I see two things with ID "sc-04" Result "fail"'
+    line: 25
+  message: 'Fail. id: sc-04, result: fail'
+  ...
+1..4

@@ -1,0 +1,70 @@
+TAP version 14
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    not ok 2 - And there is a thing with ID "bg-02" Result "fail"
+    1..5
+not ok 1 - default: Simple scenarios without background steps - success
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-fail.feature
+  scenario:
+    title: 'Simple scenarios without background steps - success'
+    line: 7
+  step:
+    text: 'And there is a thing with ID "bg-02" Result "fail"'
+    line: 5
+  message: 'Fail. id: bg-02, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    not ok 2 - And there is a thing with ID "bg-02" Result "fail"
+    1..5
+not ok 2 - default: Simple scenarios without background steps - first step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-fail.feature
+  scenario:
+    title: 'Simple scenarios without background steps - first step fails'
+    line: 12
+  step:
+    text: 'And there is a thing with ID "bg-02" Result "fail"'
+    line: 5
+  message: 'Fail. id: bg-02, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    not ok 2 - And there is a thing with ID "bg-02" Result "fail"
+    1..5
+not ok 3 - default: Simple scenarios without background steps - middle step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-fail.feature
+  scenario:
+    title: 'Simple scenarios without background steps - middle step fails'
+    line: 17
+  step:
+    text: 'And there is a thing with ID "bg-02" Result "fail"'
+    line: 5
+  message: 'Fail. id: bg-02, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "bg-01" Result "ok"
+    not ok 2 - And there is a thing with ID "bg-02" Result "fail"
+    1..5
+not ok 4 - default: Simple scenarios without background steps - last step fails
+  ---
+  feature:
+    title: 'Simple scenarios with background steps'
+    file: features/simple-bg1-fail.feature
+  scenario:
+    title: 'Simple scenarios without background steps - last step fails'
+    line: 22
+  step:
+    text: 'And there is a thing with ID "bg-02" Result "fail"'
+    line: 5
+  message: 'Fail. id: bg-02, result: fail'
+  ...
+1..4

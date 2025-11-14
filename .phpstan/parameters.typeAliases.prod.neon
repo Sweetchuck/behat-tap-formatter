@@ -4,14 +4,16 @@ parameters:
 			array{
 				show_trace?: bool,
 				trace_depth?: int<0, max>,
-				show_steps?: "never"|"on_failure"|"always",
+				show_executed_steps?: "never"|"on_failure"|"always",
+				show_remaining_steps?: bool,
 			}
 		'''
 		behat-tap-formatter-parameters: '''
 			array{
 				show_trace: bool,
 				trace_depth: int<0, max>,
-				show_steps: "never"|"on_failure"|"always",
+				show_executed_steps: "never"|"on_failure"|"always",
+				show_remaining_steps: bool,
 			}
 		'''
 		behat-tap-formatter-tap-test-point: '''
@@ -25,5 +27,11 @@ parameters:
 					reason?: ?string,
 				},
 				yamlBlock?: array<string, mixed>,
+			}
+		'''
+		behat-tap-formatter-tap-bail-out: '''
+			array{
+				comment?: ?string,
+				description?: ?string,
 			}
 		'''

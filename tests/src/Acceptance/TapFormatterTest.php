@@ -19,11 +19,50 @@ class TapFormatterTest extends TestBase
         $fs = new Filesystem();
         $projectDir = static::getFixturesDir('project-01');
 
-        // show_trace: false
-        // trace_depth: 1
-        // examples_as_subtest: false
-        // show_executed_steps: 'never'
-        // show_remaining_steps: false
+        $cases = [];
+        $cases += static::casesWithPrefix('simple-bg0-3', ['features/simple-bg0.feature:3']);
+        $cases += static::casesWithPrefix('simple-bg0-8', ['features/simple-bg0.feature:8']);
+        $cases += static::casesWithPrefix('simple-bg0-13', ['features/simple-bg0.feature:13']);
+        $cases += static::casesWithPrefix('simple-bg0-18', ['features/simple-bg0.feature:18']);
+        $cases += static::casesWithPrefix('simple-bg0', ['features/simple-bg0.feature']);
+        $cases += static::casesWithPrefix('simple-bg1-fail', ['features/simple-bg1-fail.feature']);
+        $cases += static::casesWithPrefix('simple-bg1-ok', ['features/simple-bg1-ok.feature']);
+
+        $cases['step-arguments-bg0.ses-a.srs-t'] = [
+            'expected' => $fs->readFile("$projectDir/cases/step-arguments-bg0.ses-a.srs-t.expected.txt"),
+            'behatParams' => [
+                'formatters' => [
+                    'tap' => [
+                        'show_trace' => false,
+                        'trace_depth' => 1,
+                        'examples_as_subtest' => false,
+                        'show_executed_steps' => 'always',
+                        'show_remaining_steps' => true,
+                    ],
+                ],
+            ],
+            'cliArgs' => ['features/step-arguments-bg0.feature'],
+        ];
+
+        return $cases;
+    }
+
+    /**
+     * @param array<string> $cliArgs
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function casesWithPrefix(string $caseNamePrefix, array $cliArgs): array
+    {
+        $defaultTapParameters = [
+            'show_trace' => false,
+            'trace_depth' => 1,
+            'examples_as_subtest' => false,
+        ];
+
+        $fs = new Filesystem();
+        $projectDir = static::getFixturesDir('project-01');
+
         $showExecutedSteps = [
             'ses-n' => ['show_executed_steps' => 'never'],
             'ses-f' => ['show_executed_steps' => 'on_failure'],
@@ -35,32 +74,18 @@ class TapFormatterTest extends TestBase
         ];
 
         $cases = [];
-
-        $scenarios = [
-            //'simple-bg0-3' => 'features/scenario-simple-bg0.feature:3',
-            'simple-bg0-8' => 'features/scenario-simple-bg0.feature:8',
-            //'simple-bg0-13' => 'features/scenario-simple-bg0.feature:13',
-            //'simple-bg0-18' => 'features/scenario-simple-bg0.feature:18',
-        ];
-        $defaultTapParameters = [
-            'show_trace' => false,
-            'trace_depth' => 1,
-            'examples_as_subtest' => false,
-        ];
-        foreach ($scenarios as $scenarioName => $scenario) {
-            foreach ($showExecutedSteps as $sesName => $sesParams) {
-                foreach ($showRemainingSteps as $srsName => $srsParams) {
-                    $caseName = "$scenarioName.$sesName.$srsName";
-                    $cases[$caseName] = [
-                        'expected' => $fs->readFile("$projectDir/cases/$caseName.expected.txt"),
-                        'behatParams' => [
-                            'formatters' => [
-                                'tap' => $sesParams + $srsParams + $defaultTapParameters,
-                            ],
+        foreach ($showExecutedSteps as $sesName => $sesParams) {
+            foreach ($showRemainingSteps as $srsName => $srsParams) {
+                $caseName = "$caseNamePrefix.$sesName.$srsName";
+                $cases[$caseName] = [
+                    'expected' => $fs->readFile("$projectDir/cases/$caseName.expected.txt"),
+                    'behatParams' => [
+                        'formatters' => [
+                            'tap' => $sesParams + $srsParams + $defaultTapParameters,
                         ],
-                        'cliArgs' => [$scenario],
-                    ];
-                }
+                    ],
+                    'cliArgs' => $cliArgs,
+                ];
             }
         }
 

@@ -21,6 +21,7 @@
 /phpunit.xml
 /tests/fixtures/project-01/.cache/
 /tests/fixtures/project-01/reports/
+/tests/fixtures/project-01/behat.local.yml
 
 
 ### PHP Code Sniffer.

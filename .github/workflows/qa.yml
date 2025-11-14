@@ -67,7 +67,7 @@ jobs:
                 name: 'Setup PHP'
                 uses: 'shivammathur/setup-php@v2'
                 with:
-                    php-version: ${{ matrix.php-version }}
+                    php-version: "${{ matrix.php-version }}"
                     tools: 'composer:v2'
                     extensions: 'pcov'
                     coverage: 'pcov'
@@ -92,7 +92,7 @@ jobs:
                 name: 'Upload unit test coverage to Codecov'
                 uses: 'codecov/codecov-action@v5'
                 with:
-                    token: ${{ secrets.CODECOV_TOKEN }}
+                    token: "${{ secrets.CODECOV_TOKEN }}"
                     slug: 'Sweetchuck/behat-tap-formatter'
                     flags: 'unit'
                     directory: './reports/machine/unit/coverage/'
@@ -102,3 +102,21 @@ jobs:
                 with:
                     name: "unit-test-results-php-${{ matrix.php-version }}"
                     path: './reports/machine/unit/result/junit.xml'
+            -
+                name: 'Run acceptance tests'
+                run: |-
+                    "$(composer config bin-dir)/robo" --ansi test acceptance
+            -
+                name: 'Upload acceptance test coverage to Codecov'
+                uses: 'codecov/codecov-action@v5'
+                with:
+                    token: "${{ secrets.CODECOV_TOKEN }}"
+                    slug: 'Sweetchuck/behat-tap-formatter'
+                    flags: 'acceptance'
+                    directory: './reports/machine/acceptance/coverage/'
+            -
+                name: 'Store acceptance test results'
+                uses: 'actions/upload-artifact@v4'
+                with:
+                    name: "acceptance-test-results-php-${{ matrix.php-version }}"
+                    path: './reports/machine/acceptance/result/junit.xml'
