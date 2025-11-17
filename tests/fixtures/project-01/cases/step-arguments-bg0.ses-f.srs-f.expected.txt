@@ -1,15 +1,4 @@
 TAP version 14
-# Subtest: Steps
-    ok 1 - Given there is a thing with ID "sc-01" Result "ok" and string:
-    # """
-    # Line 1
-    # Line 2
-    # """
-    ok 2 - And there is a thing with ID "sc-02" Result "ok" and table:
-    # | h1 | h2 |
-    # | c1 | c2 |
-    ok 3 - Then there is a thing with ID "sc-03" Result "ok"
-    1..3
 ok 1 - default: Scenario step arguments - success
 # Subtest: Steps
     not ok 1 - Given there is a thing with ID "sc-01" Result "fail" and string:
@@ -17,10 +6,6 @@ ok 1 - default: Scenario step arguments - success
     # Line 1
     # Line 2
     # """
-    not ok 2 - And there is a thing with ID "sc-02" Result "ok" and table: # SKIP previous step failed
-    # | h1 | h2 |
-    # | c1 | c2 |
-    not ok 3 - Then there is a thing with ID "sc-03" Result "ok" # SKIP previous step failed
     1..3
 not ok 2 - default: Scenario step arguments - string fail
   ---
@@ -49,7 +34,6 @@ not ok 2 - default: Scenario step arguments - string fail
     not ok 2 - And there is a thing with ID "sc-02" Result "fail" and table:
     # | h1 | h2 |
     # | c1 | c2 |
-    not ok 3 - Then there is a thing with ID "sc-03" Result "ok" # SKIP previous step failed
     1..3
 not ok 3 - default: Scenario step arguments - table fail
   ---

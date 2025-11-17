@@ -57,14 +57,6 @@ class TapFormatterExtension implements Extension
             ->defaultValue(3)
             ->end();
         $childrenBuilder
-            ->booleanNode('examples_as_subtest')
-            ->defaultTrue()
-            ->info(<<<'TEXT'
-                If TRUE then Scenario Outline Examples are handled as subtests.
-                TEXT
-            )
-            ->end();
-        $childrenBuilder
             ->scalarNode('show_executed_steps')
             ->info(<<<'TEXT'
                 Show steps as subtests.
@@ -83,7 +75,7 @@ class TapFormatterExtension implements Extension
                 This only makes sense when "show_executed_steps" is set to "on_failure" or "always".
                 TEXT
             )
-            ->defaultValue('on_failure')
+            ->defaultFalse()
             ->end();
     }
 

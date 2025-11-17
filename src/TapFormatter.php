@@ -13,6 +13,8 @@ use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\OutlineTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Behat\EventDispatcher\Event\StepTested;
+use Behat\Gherkin\Node\ArgumentInterface;
+use Behat\Gherkin\Node\ExampleNode;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\ScenarioLikeInterface;
 use Behat\Testwork\EventDispatcher\Event\BeforeSuiteTested;
@@ -31,7 +33,6 @@ class TapFormatter implements Formatter
     protected array $parameters = [
         'show_trace' => true,
         'trace_depth' => 1,
-        'examples_as_subtest' => false,
         'show_executed_steps' => 'on_failure',
         'show_remaining_steps' => false,
     ];
@@ -278,28 +279,52 @@ class TapFormatter implements Formatter
 
         // Steps could have only one argument.
         // @see \Behat\Gherkin\Node\StepNode::__construct
-        foreach ($step->getArguments() as $argument) {
-            $prefix = '';
-            $suffix = '';
-            $comment = null;
-
-            if ($argument instanceof PyStringNode) {
-                $prefix = '"""' . "\n";
-                $suffix = "\n" . '"""';
-            }
-
-            if ($argument instanceof \Stringable
-                || method_exists($argument, '__toString')
-            ) {
-                $comment = (string) $argument;
-            }
-
-            if ($comment !== null) {
-                $this->tapWriter->tapComment("$prefix{$comment}$suffix");
-            }
+        $argumentsAsTexts = $this->argumentsToTexts($step->getArguments());
+        foreach ($argumentsAsTexts as $text) {
+            $this->tapWriter->tapComment($text);
         }
 
         return $this;
+    }
+
+    /**
+     * @param array<\Behat\Gherkin\Node\ArgumentInterface> $arguments
+     *
+     * @return array<string>
+     */
+    protected function argumentsToTexts(array $arguments): array
+    {
+        $texts = [];
+        foreach ($arguments as $argument) {
+            $text = $this->argumentToText($argument);
+            if ($text !== null) {
+                $texts[] = $text;
+            }
+        }
+
+        return $texts;
+    }
+
+    protected function argumentToText(ArgumentInterface $argument): ?string
+    {
+        $prefix = '';
+        $suffix = '';
+        $text = null;
+
+        if ($argument instanceof PyStringNode) {
+            $prefix = '"""' . "\n";
+            $suffix = "\n" . '"""';
+        }
+
+        if ($argument instanceof \Stringable
+            || method_exists($argument, '__toString')
+        ) {
+            $text = (string) $argument;
+        }
+
+        return $text === null
+            ? null
+            : $prefix . $text . $suffix;
     }
 
     protected function beforeTest(ScenarioLikeInterface $scenario): void
@@ -380,32 +405,18 @@ class TapFormatter implements Formatter
 
     protected function getScenarioSimpleDescription(AfterScenarioTested $event): string
     {
+        $scenario = $event->getScenario();
         $suiteTitle = $event->getSuite()->getName();
-        $featureTitle = $event->getFeature()->getTitle();
-        $scenarioTitle = $event->getScenario()->getTitle();
+        $scenarioTitle = $scenario instanceof ExampleNode
+            ? $scenario->getOutlineTitle()
+            : $scenario->getTitle();
+        $exampleText = $scenario instanceof ExampleNode
+            ? $scenario->getExampleText()
+            : null;
 
-        $isOutline = $this->beforeOutlineTestedEvent !== null
-            && $event->getScenario()->getNodeType() === 'Example';
-
-        if (!$isOutline) {
-            return "{$suiteTitle}: {$scenarioTitle}";
-        }
-
-        return str_starts_with($scenarioTitle, $featureTitle)
+        return $exampleText === null
             ? "{$suiteTitle}: {$scenarioTitle}"
-            : "{$suiteTitle}: {$featureTitle} | {$scenarioTitle}";
-    }
-
-    protected function getScenarioTitle(AfterScenarioTested $event): string
-    {
-        $isOutline = $this->beforeOutlineTestedEvent !== null
-            && $event->getScenario()->getNodeType() === 'Example';
-
-        if (!$isOutline) {
-            return $event->getScenario()->getTitle();
-        }
-
-        return $this->beforeOutlineTestedEvent->getOutline()->getTitle() . ' ' . $event->getScenario()->getTitle();
+            : "{$suiteTitle}: {$scenarioTitle} < {$exampleText}";
     }
 
     /**
@@ -429,6 +440,9 @@ class TapFormatter implements Formatter
         $scenario = $event instanceof AfterScenarioTested
             ? $event->getScenario()
             : $event->getOutline();
+        $scenarioTitle = $scenario instanceof ExampleNode
+            ? $scenario->getOutlineTitle()
+            : $scenario->getTitle();
         $step = $failedStepEvent->getStep();
 
         $params = [
@@ -437,7 +451,7 @@ class TapFormatter implements Formatter
                 'file' => $this->getRelativeFilePath($feature->getFile()),
             ],
             'scenario' => [
-                'title' => $scenario->getTitle(),
+                'title' => $scenarioTitle,
                 'line' => $scenario->getLine(),
             ],
             'step' => [
@@ -445,6 +459,15 @@ class TapFormatter implements Formatter
                 'line' => $step->getLine(),
             ],
         ];
+
+        if ($scenario instanceof ExampleNode) {
+            $params['scenario']['exampleText'] = $scenario->getExampleText();
+        }
+
+        $argumentsAsTexts = $this->argumentsToTexts($step->getArguments());
+        if (!empty($argumentsAsTexts[0])) {
+            $params['step']['arguments'] = $argumentsAsTexts[0];
+        }
 
         $result = $failedStepEvent->getTestResult();
         if (!($result instanceof ExceptionResult)

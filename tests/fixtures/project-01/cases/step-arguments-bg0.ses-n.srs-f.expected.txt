@@ -1,0 +1,37 @@
+TAP version 14
+ok 1 - default: Scenario step arguments - success
+not ok 2 - default: Scenario step arguments - string fail
+  ---
+  feature:
+    title: 'Scenario step arguments'
+    file: features/step-arguments-bg0.feature
+  scenario:
+    title: 'Scenario step arguments - string fail'
+    line: 14
+  step:
+    text: 'Given there is a thing with ID "sc-01" Result "fail" and string:'
+    line: 15
+    arguments: |-
+      """
+      Line 1
+      Line 2
+      """
+  message: 'Fail. id: sc-01, result: fail'
+  ...
+not ok 3 - default: Scenario step arguments - table fail
+  ---
+  feature:
+    title: 'Scenario step arguments'
+    file: features/step-arguments-bg0.feature
+  scenario:
+    title: 'Scenario step arguments - table fail'
+    line: 25
+  step:
+    text: 'And there is a thing with ID "sc-02" Result "fail" and table:'
+    line: 31
+    arguments: |-
+      | h1 | h2 |
+      | c1 | c2 |
+  message: 'Fail. id: sc-02, result: fail'
+  ...
+1..3

@@ -1,0 +1,60 @@
+TAP version 14
+ok 1 - default: Simple scenarios without background steps - success 01
+ok 2 - default: Outline scenarios without background steps - main < | ok       | ok       | ok       |
+# Subtest: Steps
+    not ok 1 - Given there is a thing with ID "sc-01" Result "fail"
+    1..3
+not ok 3 - default: Outline scenarios without background steps - main < | fail     | ok       | ok       |
+  ---
+  feature:
+    title: 'Outline scenarios without background steps'
+    file: features/outline-bg0.feature
+  scenario:
+    title: 'Outline scenarios without background steps - main'
+    line: 15
+    exampleText: '| fail     | ok       | ok       |'
+  step:
+    text: 'Given there is a thing with ID "sc-01" Result "fail"'
+    line: 9
+  message: 'Fail. id: sc-01, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "sc-01" Result "ok"
+    not ok 2 - When I create a thing with ID "sc-02" Result "fail"
+    1..3
+not ok 4 - default: Outline scenarios without background steps - main < | ok       | fail     | ok       |
+  ---
+  feature:
+    title: 'Outline scenarios without background steps'
+    file: features/outline-bg0.feature
+  scenario:
+    title: 'Outline scenarios without background steps - main'
+    line: 16
+    exampleText: '| ok       | fail     | ok       |'
+  step:
+    text: 'When I create a thing with ID "sc-02" Result "fail"'
+    line: 10
+  message: 'Fail. id: sc-02, result: fail'
+  ...
+# Subtest: Steps
+    ok 1 - Given there is a thing with ID "sc-01" Result "ok"
+    ok 2 - When I create a thing with ID "sc-02" Result "ok"
+    not ok 3 - Then I see two things with ID "sc-03" Result "fail"
+    1..3
+not ok 5 - default: Outline scenarios without background steps - main < | ok       | ok       | fail     |
+  ---
+  feature:
+    title: 'Outline scenarios without background steps'
+    file: features/outline-bg0.feature
+  scenario:
+    title: 'Outline scenarios without background steps - main'
+    line: 17
+    exampleText: '| ok       | ok       | fail     |'
+  step:
+    text: 'Then I see two things with ID "sc-03" Result "fail"'
+    line: 11
+  message: 'Fail. id: sc-03, result: fail'
+  ...
+ok 6 - default: Outline scenarios without background steps - main < | success  | success  | success  |
+ok 7 - default: Simple scenarios without background steps - success 02
+1..7

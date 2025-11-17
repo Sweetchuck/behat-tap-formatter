@@ -16,9 +16,6 @@ class TapFormatterTest extends TestBase
      */
     public static function casesTapFormatter(): array
     {
-        $fs = new Filesystem();
-        $projectDir = static::getFixturesDir('project-01');
-
         $cases = [];
         $cases += static::casesWithPrefix('simple-bg0-3', ['features/simple-bg0.feature:3']);
         $cases += static::casesWithPrefix('simple-bg0-8', ['features/simple-bg0.feature:8']);
@@ -27,22 +24,8 @@ class TapFormatterTest extends TestBase
         $cases += static::casesWithPrefix('simple-bg0', ['features/simple-bg0.feature']);
         $cases += static::casesWithPrefix('simple-bg1-fail', ['features/simple-bg1-fail.feature']);
         $cases += static::casesWithPrefix('simple-bg1-ok', ['features/simple-bg1-ok.feature']);
-
-        $cases['step-arguments-bg0.ses-a.srs-t'] = [
-            'expected' => $fs->readFile("$projectDir/cases/step-arguments-bg0.ses-a.srs-t.expected.txt"),
-            'behatParams' => [
-                'formatters' => [
-                    'tap' => [
-                        'show_trace' => false,
-                        'trace_depth' => 1,
-                        'examples_as_subtest' => false,
-                        'show_executed_steps' => 'always',
-                        'show_remaining_steps' => true,
-                    ],
-                ],
-            ],
-            'cliArgs' => ['features/step-arguments-bg0.feature'],
-        ];
+        $cases += static::casesWithPrefix('step-arguments-bg0', ['features/step-arguments-bg0.feature']);
+        $cases += static::casesWithPrefix('outline-bg0', ['features/outline-bg0.feature']);
 
         return $cases;
     }
@@ -57,7 +40,6 @@ class TapFormatterTest extends TestBase
         $defaultTapParameters = [
             'show_trace' => false,
             'trace_depth' => 1,
-            'examples_as_subtest' => false,
         ];
 
         $fs = new Filesystem();
